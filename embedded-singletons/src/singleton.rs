@@ -4,7 +4,7 @@ use crate::runtime;
 use core::cell::UnsafeCell;
 
 /// A globally shared, lazy singleton
-pub struct SharedSingleton<T, I> {
+pub struct SharedSingleton<T, I = fn() -> T> {
     /// The singleton value
     inner: UnsafeCell<(Option<I>, Option<T>)>,
 }
@@ -67,7 +67,7 @@ where
 /// # Warning
 /// This singleton must not be accessed from interrupts; doing so will raise a panic. For interrupt-safe singletons, use
 /// [`SharedSingleton`].
-pub struct LocalSingleton<T, const THREADS_MAX: usize, I> {
+pub struct LocalSingleton<T, const THREADS_MAX: usize, I = fn() -> T> {
     /// The initializer
     init: I,
     /// The per-thread values
