@@ -1,0 +1,2 @@
+[workspace]
+members = ["embedded-singletons", "embedded-singletons-rp2040"]
