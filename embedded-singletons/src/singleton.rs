@@ -1,7 +1,10 @@
 //! Implements shared and thread-/core-local singletons
 
 use crate::runtime;
-use core::cell::UnsafeCell;
+use core::{
+    cell::UnsafeCell,
+    fmt::{self, Debug, Formatter},
+};
 
 /// A globally shared, lazy singleton
 pub struct SharedSingleton<T, I = fn() -> T> {
@@ -66,6 +69,15 @@ where
 
         // Call the scope
         scope(value)
+    }
+}
+impl<T, I> Debug for SharedSingleton<T, I>
+where
+    I: FnOnce() -> T,
+    T: Debug,
+{
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+        self.scope(|value| value.fmt(f))
     }
 }
 unsafe impl<T, I> Sync for SharedSingleton<T, I>
@@ -133,6 +145,22 @@ where
         // Call the scope
         let value = value.get_or_insert((self.init)());
         scope(value)
+    }
+}
+impl<T, const THREADS_MAX: usize, I> Debug for LocalSingleton<T, THREADS_MAX, I>
+where
+    I: Fn() -> T + Copy,
+    T: Debug,
+{
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+        // Return an opaque description if we are in an interrupt context
+        let is_interrupted = unsafe { runtime::_runtime_isinterrupted_v5tnnoC7() };
+        if is_interrupted {
+            return f.debug_tuple("LocalSingleton").field(&"<opaque due to interrupt context>").finish();
+        }
+
+        // Debug the value
+        self.scope(|value| value.fmt(f))
     }
 }
 unsafe impl<T, const THREADS_MAX: usize, I> Sync for LocalSingleton<T, THREADS_MAX, I>
