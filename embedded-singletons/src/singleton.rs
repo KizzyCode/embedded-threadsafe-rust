@@ -4,11 +4,11 @@ use crate::runtime;
 use core::cell::UnsafeCell;
 
 /// A globally shared, lazy singleton
-pub struct SharedSingleton<I, T> {
+pub struct SharedSingleton<T, I> {
     /// The singleton value
     inner: UnsafeCell<(Option<I>, Option<T>)>,
 }
-impl<I, T> SharedSingleton<I, T>
+impl<T, I> SharedSingleton<T, I>
 where
     I: FnOnce() -> T,
 {
@@ -54,10 +54,10 @@ where
         result.expect("implementation scope did not set result value")
     }
 }
-unsafe impl<I, T> Sync for SharedSingleton<I, T>
+unsafe impl<T, I> Sync for SharedSingleton<T, I>
 where
-    I: Send,
     T: Send,
+    I: Send,
 {
     // Marker trait, no members to implement
 }
@@ -67,13 +67,13 @@ where
 /// # Warning
 /// This singleton must not be accessed from interrupts; doing so will raise a panic. For interrupt-safe singletons, use
 /// [`SharedSingleton`].
-pub struct LocalSingleton<I, T, const THREADS_MAX: usize> {
+pub struct LocalSingleton<T, const THREADS_MAX: usize, I> {
     /// The initializer
     init: I,
     /// The per-thread values
     cells: [UnsafeCell<Option<T>>; THREADS_MAX],
 }
-impl<I, T, const THREADS_MAX: usize> LocalSingleton<I, T, THREADS_MAX>
+impl<T, const THREADS_MAX: usize, I> LocalSingleton<T, THREADS_MAX, I>
 where
     I: Fn() -> T + Copy,
 {
@@ -110,10 +110,10 @@ where
         scope(value)
     }
 }
-unsafe impl<I, T, const THREADS_MAX: usize> Sync for LocalSingleton<I, T, THREADS_MAX>
+unsafe impl<T, const THREADS_MAX: usize, I> Sync for LocalSingleton<T, THREADS_MAX, I>
 where
-    I: Send,
     T: Send,
+    I: Send,
 {
     // Marker trait, no members to implement
 }
