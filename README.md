@@ -1,1 +1,1 @@
-hardware-singletons/README.md
+embedded-singletons/README.md
