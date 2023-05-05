@@ -29,29 +29,43 @@ where
 
         // Create the caller
         let mut call_scope = || {
-            // Get the inner state
-            let inner_ptr = self.inner.get();
-            let (init, value) = unsafe { inner_ptr.as_mut() }.expect("unexpected NULL pointer inside cell");
-
-            // Initialize the value if necessary
-            if let Some(init) = init.take() {
-                let value_ = init();
-                *value = Some(value_);
-            }
-
-            // Take the initialized value
-            let Some(value) = value.as_mut() else {
-                unreachable!("initialized singleton is not ready");
-            };
-
-            // Call the scope
+            // Consume and call the scope
             let scope = scope.take().expect("missing scope function");
-            result = Some(scope(value));
+            let result_ = unsafe { self.raw(scope) };
+            result = Some(result_);
         };
 
         // Run the implementation in a threadsafe context and return the result
         unsafe { runtime::_runtime_threadsafe_e0LtH0x3(&mut call_scope) };
         result.expect("implementation scope did not set result value")
+    }
+
+    /// Provides an unsafe raw scoped access to the underlying value
+    ///
+    /// # Safety
+    /// This function does not perform any kind of synchronization or safety check or whatsoever - it is up to the caller
+    /// to avoid race conditions.
+    pub unsafe fn raw<F, FR>(&self, scope: F) -> FR
+    where
+        F: FnOnce(&mut T) -> FR,
+    {
+        // Get the inner state
+        let inner_ptr = self.inner.get();
+        let (init, value) = inner_ptr.as_mut().expect("unexpected NULL pointer inside cell");
+
+        // Initialize the value if necessary
+        if let Some(init) = init.take() {
+            let value_ = init();
+            *value = Some(value_);
+        }
+
+        // Take the initialized value
+        let Some(value) = value.as_mut() else {
+            unreachable!("initialized singleton is not ready");
+        };
+
+        // Call the scope
+        scope(value)
     }
 }
 unsafe impl<T, I> Sync for SharedSingleton<T, I>
@@ -96,14 +110,25 @@ where
         // Ensure that we are not in an interrupt handler
         let is_interrupted = unsafe { runtime::_runtime_isinterrupted_v5tnnoC7() };
         assert!(!is_interrupted, "local singleton must not be called from an interrupt handler");
+        unsafe { self.raw(scope) }
+    }
 
+    /// Provides an unsafe raw scoped access to the underlying value
+    ///
+    /// # Safety
+    /// This function can also be called from interrupts and does not perform any kind of synchronization or safety check
+    /// or whatsoever - it is up to the caller to avoid race conditions.
+    pub unsafe fn raw<F, FR>(&self, scope: F) -> FR
+    where
+        F: FnOnce(&mut T) -> FR,
+    {
         // Lookup our slot
-        let thread_id = unsafe { runtime::_runtime_threadid_ZhZIZBv3() };
+        let thread_id = runtime::_runtime_threadid_ZhZIZBv3();
         assert!(thread_id < THREADS_MAX, "invalid thread ID");
 
         // Get the inner state
         let inner_ptr = self.cells[thread_id].get();
-        let value = unsafe { inner_ptr.as_mut() }.expect("unexpected NULL pointer inside cell");
+        let value = inner_ptr.as_mut().expect("unexpected NULL pointer inside cell");
 
         // Call the scope
         let value = value.get_or_insert((self.init)());
