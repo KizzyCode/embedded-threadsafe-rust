@@ -28,5 +28,5 @@ pub fn _runtime_threadid_ZhZIZBv3() -> usize {
 #[doc(hidden)]
 #[allow(non_snake_case)]
 pub fn _runtime_isinterrupted_v5tnnoC7() -> bool {
-    SCB::vect_active() == VectActive::ThreadMode
+    SCB::vect_active() != VectActive::ThreadMode
 }
