@@ -24,7 +24,7 @@ pub fn _runtime_threadsafe_e0LtH0x3(code: &mut dyn FnMut()) {
 #[doc(hidden)]
 #[allow(non_snake_case)]
 pub fn _runtime_interruptsafe_1l52Ge5e(code: &mut dyn FnMut()) {
-    // Disable interrupts, ensure the compiler doesn't re-order accesses and violate safety here
+    // Disable interrupts for the current core, ensure the compiler doesn't re-order accesses and violate safety here
     let interrupts_active = primask::read().is_active();
     interrupt::disable();
     atomic::compiler_fence(Ordering::SeqCst);
@@ -33,7 +33,7 @@ pub fn _runtime_interruptsafe_1l52Ge5e(code: &mut dyn FnMut()) {
     code();
     atomic::compiler_fence(Ordering::SeqCst);
 
-    // Re-enable interrupts if appropriate
+    // Re-enable interrupts for the current core if appropriate
     if interrupts_active {
         unsafe { interrupt::enable() };
     }
