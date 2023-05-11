@@ -1,8 +1,9 @@
 #![no_std]
 #![doc = include_str!("../README.md")]
 
+mod lazy;
 mod runtime;
-pub mod singleton;
+pub mod singletons;
 
 // Re-export the singletons
-pub use crate::singleton::*;
+pub use crate::singletons::{interrupt::InterruptSingleton, local::LocalSingleton, shared::SharedSingleton};
