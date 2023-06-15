@@ -1,13 +1,13 @@
 [package]
-name = "embedded-singletons-rp2040"
-version = "0.1.0"
+name = "embedded-threadsafe-rp2040"
+version = "0.2.0"
 edition = "2021"
 authors = ["KizzyCode Software Labs./Keziah Biermann <development@kizzycode.de>"]
 keywords = []
 categories = []
-description = "Provides global or thread-global singletons for embedded devices, with predefined runtime functions for the rp2040"
+description = "Provides safe global or thread-local cells for embedded devices, with predefined runtime hooks for the rp2040"
 license = "BSD-2-Clause OR MIT"
-repository = "https://github.com/KizzyCode/embedded-singletons-rust"
+repository = "https://github.com/KizzyCode/embedded-threadsafe-rust"
 readme = "README.md"
 
 
@@ -20,10 +20,10 @@ default = []
 
 [dependencies]
 # FIXME
-embedded-singletons = { path = "../embedded-singletons" }
+embedded-threadsafe = { path = "../embedded-threadsafe" }
 critical-section = "1.1.1"
 cortex-m = "0.7.7"
-rp2040-hal = "0.8.1"
+rp2040-hal = "0.8.2"
 
 
 [profile.release]

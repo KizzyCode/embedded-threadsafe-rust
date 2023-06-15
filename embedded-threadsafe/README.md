@@ -2,7 +2,7 @@
 [![License MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
 
-# `embedded-singletons-rp2040`
-Provides global or thread-global singletons for embedded devices, with predefined runtime functions for the rp2040.
+# `embedded-threadsafe`
+Provides global or thread-local cells for embedded devices.
 
 ⚠️ WARNING: WIP ⚠️

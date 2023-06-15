@@ -39,15 +39,16 @@ pub fn _runtime_interruptsafe_1l52Ge5e(code: &mut dyn FnMut()) {
     }
 }
 
-/// Gets the __unique__ and __persistent__ identifier of the current thread (e.g. the number of the current core)
+/// Gets the __unique__ and __persistent__ identifier of the current thread (e.g. a session-unique thread IDs or the
+/// index of the current CPU core on bare-metal systems).
 ///
 /// # Note
-/// This function is used to lookup thread-local data, so it is essential that a) the ID is always the same for a
-/// given thread and b) IDs are not reused across different threads.
+/// This function is used to lookup context-local data, so it is essential that a) the ID is always the same for a
+/// given context and b) IDs are not reused across different contexts during the lifetime of the application.
 #[no_mangle]
 #[doc(hidden)]
 #[allow(non_snake_case)]
-pub fn _runtime_threadid_ZhZIZBv3() -> usize {
+pub fn _runtime_threadid_ZhZIZBv4() -> usize {
     Sio::core() as usize
 }
 

@@ -5,4 +5,4 @@
 pub mod runtime;
 
 // Re-export everything
-pub use embedded_singletons::*;
+pub use embedded_threadsafe::*;

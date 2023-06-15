@@ -8,13 +8,17 @@ pub struct LazyCell<T, I> {
     inner: UnsafeCell<(Option<I>, Option<T>)>,
 }
 impl<T, I> LazyCell<T, I> {
-    /// Creates a new lazy singleton cell with the given initializer
+    /// Creates a new lazy cell with the given initializer
     pub const fn new(init: I) -> Self {
         let value = (Some(init), None);
         Self { inner: UnsafeCell::new(value) }
     }
 
     /// Provides scoped access to the underlying value, initializes it if necessary
+    ///
+    /// # Safety
+    /// This function provides unchecked, mutable access to the underlying value, so incorrect use of this function may
+    /// lead to race conditions or undefined behavior.
     #[inline]
     pub unsafe fn scope<F, FR>(&self, scope: F) -> FR
     where
@@ -38,5 +42,15 @@ impl<T, I> LazyCell<T, I> {
 
         // Call the scope
         scope(value)
+    }
+
+    /// Provides scoped access to the underlying value, initializes it if necessary
+    #[inline]
+    pub fn scope_mut<F, FR>(&self, scope: F) -> FR
+    where
+        I: FnOnce() -> T,
+        F: FnOnce(&mut T) -> FR,
+    {
+        unsafe { self.scope(scope) }
     }
 }

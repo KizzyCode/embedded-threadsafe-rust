@@ -1,20 +1,20 @@
-//! A lazy singleton that can be safely be shared across multicore or thread boundaries and interrupt contexts
+//! A cell that can be safely be shared across thread boundaries and interrupt contexts
 
-use crate::{lazy::LazyCell, runtime};
-use core::fmt::{self, Debug, Formatter};
+use crate::runtime;
+use core::{
+    cell::UnsafeCell,
+    fmt::{self, Debug, Formatter},
+};
 
-/// A lazy singleton that can be safely be shared across multicore or thread boundaries and interrupt contexts
-pub struct SharedSingleton<T, I = fn() -> T> {
-    /// The singleton value
-    inner: LazyCell<T, I>,
+/// A cell that can be safely be shared across thread boundaries and interrupt contexts
+pub struct SharedCell<T> {
+    /// The wrapped value
+    inner: UnsafeCell<T>,
 }
-impl<T, I> SharedSingleton<T, I>
-where
-    I: FnOnce() -> T,
-{
-    /// Creates a new lazy singleton with the given initializer
-    pub const fn new(init: I) -> Self {
-        Self { inner: LazyCell::new(init) }
+impl<T> SharedCell<T> {
+    /// Creates a new cell
+    pub const fn new(value: T) -> Self {
+        Self { inner: UnsafeCell::new(value) }
     }
 
     /// Provides scoped access to the underlying value
@@ -40,28 +40,29 @@ where
     /// Provides an unsafe raw scoped access to the underlying value
     ///
     /// # Safety
-    /// This function does not perform any kind of synchronization or safety check or whatsoever - it is up to the caller
-    /// to avoid race conditions.
+    /// This function provides unchecked, mutable access to the underlying value, so incorrect use of this function may
+    /// lead to race conditions or undefined behavior.
     pub unsafe fn raw<F, FR>(&self, scope: F) -> FR
     where
         F: FnOnce(&mut T) -> FR,
     {
-        self.inner.scope(scope)
+        // Provide access to the inner value
+        let inner_ptr = self.inner.get();
+        let value = inner_ptr.as_mut().expect("unexpected NULL pointer inside cell");
+        scope(value)
     }
 }
-impl<T, I> Debug for SharedSingleton<T, I>
+impl<T> Debug for SharedCell<T>
 where
-    I: FnOnce() -> T,
     T: Debug,
 {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         self.scope(|value| value.fmt(f))
     }
 }
-unsafe impl<T, I> Sync for SharedSingleton<T, I>
+unsafe impl<T> Sync for SharedCell<T>
 where
     T: Send,
-    I: Send,
 {
     // Marker trait, no members to implement
 }

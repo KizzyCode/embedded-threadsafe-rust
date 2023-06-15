@@ -1,2 +1,2 @@
 [workspace]
-members = ["embedded-singletons", "embedded-singletons-rp2040"]
+members = ["embedded-threadsafe", "embedded-threadsafe-rp2040"]

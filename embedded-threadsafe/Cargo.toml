@@ -1,13 +1,13 @@
 [package]
-name = "embedded-singletons"
-version = "0.1.0"
+name = "embedded-threadsafe"
+version = "0.2.0"
 edition = "2021"
 authors = ["KizzyCode Software Labs./Keziah Biermann <development@kizzycode.de>"]
 keywords = []
 categories = []
-description = "Provides global or thread-global singletons for embedded devices"
+description = "Provides safe global or thread-local cells for embedded devices"
 license = "BSD-2-Clause OR MIT"
-repository = "https://github.com/KizzyCode/embedded-singletons-rust"
+repository = "https://github.com/KizzyCode/embedded-threadsafe-rust"
 readme = "README.md"
 
 
