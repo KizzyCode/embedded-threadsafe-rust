@@ -20,7 +20,7 @@ default = []
 
 [dependencies]
 # FIXME
-embedded-threadsafe = { path = "../embedded-threadsafe" }
+embedded-threadsafe = { path = "../embedded-threadsafe", version = "0.2.0" }
 critical-section = "1.1.1"
 cortex-m = "0.7.7"
 rp2040-hal = "0.8.2"
