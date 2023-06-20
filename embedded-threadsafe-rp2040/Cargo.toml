@@ -1,6 +1,6 @@
 [package]
 name = "embedded-threadsafe-rp2040"
-version = "0.2.0"
+version = "0.2.2"
 edition = "2021"
 authors = ["KizzyCode Software Labs./Keziah Biermann <development@kizzycode.de>"]
 keywords = []
@@ -20,7 +20,7 @@ default = []
 
 [dependencies]
 # FIXME
-embedded-threadsafe = { path = "../embedded-threadsafe", version = "0.2.0" }
+embedded-threadsafe = { git = "https://github.com/KizzyCode/embedded-threadsafe-rust", version = "0.2.2" }
 critical-section = "1.1.1"
 cortex-m = "0.7.7"
 rp2040-hal = "0.8.2"
