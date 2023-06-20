@@ -3,7 +3,7 @@
 use core::cell::UnsafeCell;
 
 /// A lazily instantiated cell
-pub struct LazyCell<T, I> {
+pub struct LazyCell<T, I = fn() -> T> {
     /// A tuple containing the initializer and the value
     inner: UnsafeCell<(Option<I>, Option<T>)>,
 }
