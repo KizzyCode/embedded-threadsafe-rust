@@ -1,6 +1,6 @@
 //! A cell that can be safely be shared across thread boundaries and interrupt contexts
 
-use crate::runtime;
+use crate::{runtime, LazyCell};
 use core::{
     cell::UnsafeCell,
     fmt::{self, Debug, Formatter},
@@ -50,6 +50,18 @@ impl<T> SharedCell<T> {
         let inner_ptr = self.inner.get();
         let value = inner_ptr.as_mut().expect("unexpected NULL pointer inside cell");
         scope(value)
+    }
+}
+impl<T> SharedCell<LazyCell<T>> {
+    /// Provides scoped access to the underlying lazy cell
+    ///
+    /// # Panic
+    /// This function will panic if called from another thread or interrupt context
+    pub fn lazy_scope<F, FR>(&self, scope: F) -> FR
+    where
+        F: FnOnce(&mut T) -> FR,
+    {
+        self.scope(|lazy| lazy.scope_mut(scope))
     }
 }
 impl<T> Debug for SharedCell<T>
