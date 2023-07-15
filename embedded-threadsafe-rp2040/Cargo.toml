@@ -1,6 +1,6 @@
 [package]
 name = "embedded-threadsafe-rp2040"
-version = "0.2.2"
+version = "0.2.3"
 edition = "2021"
 authors = ["KizzyCode Software Labs./Keziah Biermann <development@kizzycode.de>"]
 keywords = []
