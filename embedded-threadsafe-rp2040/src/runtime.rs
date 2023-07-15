@@ -43,8 +43,8 @@ pub fn _runtime_interruptsafe_1l52Ge5e(code: &mut dyn FnMut()) {
 /// index of the current CPU core on bare-metal systems).
 ///
 /// # Note
-/// This function is used to lookup context-local data, so it is essential that a) the ID is always the same for a
-/// given context and b) IDs are not reused across different contexts during the lifetime of the application.
+/// This function is used to guard context-local data, so it is essential that a) the ID is always the same for a given
+/// context and b) IDs are not reused across different contexts during the lifetime of the application.
 #[no_mangle]
 #[doc(hidden)]
 #[allow(non_snake_case)]
